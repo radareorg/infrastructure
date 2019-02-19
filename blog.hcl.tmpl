@@ -1,0 +1,36 @@
+job "blog" {
+	datacenters = ["dc1"]
+	type = "service"
+
+	group "Microservices" {
+		count = "1"
+
+		task "blog" {
+
+			driver = "docker"
+			config {
+				# TODO: Take the image from the local registry service
+
+				image = ""
+				port_map {
+					http = 3000
+				}
+			}
+
+			resources {
+				memory = 256 # 256 Mb
+				network {
+					mbits = "10"
+					port "http" {}
+				}
+			}
+
+			service {
+				name = "blog"
+				tags = ["blog", "radare.today"]
+				port = "http"
+			}
+
+		}
+	}
+}
