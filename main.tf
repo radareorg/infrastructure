@@ -3,11 +3,9 @@ provider "nomad" {
 	region = ""
 }
 
-variable "version" {
-	default = "latest"
-}
-
 # TODO: setup local docker registry service, use this as a variable
+# TODO: setup SSL certificates for all domains
+# TODO: setup DNS for all domains
 data "template_file" "job" {
 	template = "${file("${path.module}/blog.hcl.tmpl")}"
 	vars {
@@ -18,3 +16,5 @@ data "template_file" "job" {
 resource "nomad_job" "blog" {
 	jobspec = "${data.template_file.job.rendered}"
 }
+
+# TODO: Add modules for separate service

@@ -1,0 +1,5 @@
+variable "version" {
+	default = "latest"
+}
+
+
