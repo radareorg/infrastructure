@@ -1,0 +1,64 @@
+job "docker-registry" {
+  datacenters = [
+    "global"
+  ]
+  type = "service"
+  update {
+    max_parallel = 1
+    auto_revert = true
+  }
+  group "docker-registry" {
+    count = 2
+    restart {
+      attempts = 2
+      interval = "30m"
+      delay = "15s"
+      mode = "fail"
+    }
+    ephemeral_disk {
+      size = 500
+    }
+    task "docker-registry" {
+      driver = "docker"
+      config {
+        image = "registry:2"
+        volumes = [
+          "local/config.yml:/etc/docker/registry/config.yml",
+          "/etc/pki/tls/certs/xxx-combined.pem:/etc/pki/tls/certs/xxx-combined.pem",
+          "/etc/pki/tls/private/xxx.key:/etc/pki/tls/private/xxx.key"
+        ]
+      }
+      template {
+        data = "{{ key \"apps/registry/config\" }}"
+        destination = "local/config.yml"
+      }
+      service {
+        name = "docker-registry"
+        tags = [
+          "docker-registry",
+          "docker.rada.re/ allow=ip:10.0.1.0/8 tlsskipverify=true proto=https",
+          "docker.rada.re:5000/ allow=ip:10.0.1.0/8 tlsskipverify=true proto=https"
+        ]
+        address_mode = "driver"
+        port = 5000
+        check {
+          address_mode = "driver"
+          port = 5000
+          type = "http"
+          protocol = "https"
+          path = "/v2/"
+          tls_skip_verify = true
+          interval = "20s"
+          timeout = "5s"
+        }
+      }
+      env {
+        "SERVICE_IGNORE" = "true"
+      }
+      resources {
+        cpu    = 500
+        memory = 1024
+      }
+    }
+  }
+}
