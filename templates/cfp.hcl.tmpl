@@ -1,0 +1,37 @@
+# vim: set ft=tf
+
+job "cfpj" {
+	datacenters = ["dc1"]
+	type = "service"
+
+	group "Microservices" {
+		count = "1"
+
+		task "cfp" {
+
+			driver = "docker"
+			config {
+				# TODO: Make it a variable in Terraform
+				image = "127.0.0.1:5000/cfp:latest"
+				port_map {
+					http = 3000
+				}
+			}
+
+			resources {
+				memory = 256 # 256 Mb
+				network {
+					mbits = "10"
+					port "http" {}
+				}
+			}
+
+			service {
+				name = "cfp"
+				tags = ["cfp", "pretalx"]
+				port = "http"
+			}
+
+		}
+	}
+}

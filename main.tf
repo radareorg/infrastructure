@@ -20,11 +20,21 @@ data "template_blog" "job" {
 	}
 }
 
+data "template_cfp" "job" {
+	template = "${file("${path.module}/cfp.hcl.tmpl")}"
+	vars {
+		version = "${var.version}"
+	}
+}
+
 resource "nomad_job" "registry" {
 	jobspec = "${data.template_registry.job.rendered}"
 }
 resource "nomad_job" "blog" {
 	jobspec = "${data.template_blog.job.rendered}"
+}
+resource "nomad_job" "cfp" {
+	jobspec = "${data.template_cfp.job.rendered}"
 }
 
 # TODO: Add modules for separate service
